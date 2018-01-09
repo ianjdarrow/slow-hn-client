@@ -1,0 +1,47 @@
+a.post-title {
+  color: hsl(0, 0%, 5%);
+  text-decoration: none;
+  font-weight: 500;
+  letter-spacing: 0.25px;
+}
+
+.post-details, a.post-details {
+  color: hsl(0, 0%, 50%);
+  font-weight: 400;
+  margin-right: 5px;
+  text-decoration: none;
+}
+
+.post-list-container {
+  max-width: 960px;
+  margin: 0 auto;
+  margin-top: 60px;
+  padding-top: 20px;  
+  margin-bottom: 60px;
+  background-color: hsl(0,0%,96%);
+}
+
+.list-item-container {
+  display: grid;
+  grid-template-columns: 40px auto;
+  grid-template-areas:
+    "list-item-index list-item-title"
+    "............... list-item-details";
+  grid-gap: 10px;
+}
+
+.list-item-index {
+  grid-area: list-item-index;
+  text-align: right;
+}
+
+.list-item-title {
+  grid-area: list-item-title;
+}
+
+.list-item-details {
+  grid-area: list-item-details;
+  margin-bottom: 24px;
+  font-size: 12px;
+}
+
