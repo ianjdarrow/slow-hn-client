@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import './App.css';
+import Header from './components/Header';
 import PostList from './components/PostList';
 
 import axios from 'axios'
@@ -19,15 +20,16 @@ class App extends Component {
   }
 
   async componentDidMount () {
-    const res = await axios.get("http://localhost:4000/posts?start=0&end=9999999999999")
-    console.log(res);
+    const now = Math.round((new Date()).getTime() / 1000);
+    const res = await axios.get(`http://localhost:4000/posts?start=${now-60*60}&end=${now}`)
     await this.setStateAsync((state) => ({ posts: res.data }));
   }
 
   render() {
     return (
       <div className="app">
-        { this.state.posts ? <PostList posts={this.state.posts} /> : "loading" }
+        <Header />
+        { <PostList posts={this.state.posts || [] } /> }
       </div>
     );
   }

@@ -23,11 +23,12 @@ function PostList(props) {
           <span>
             <span className='post-details'>by</span>
             <a href={ userURL(post.by) } className='post-details'>
-              {post.by} | 
+              {post.by}
             </a></span>
+            <span className='post-details'> | </span>
             <span>
               <a href={ itemURL(post.id) } className='post-details'>
-                 { post.descendants } comments
+                { post.descendants } comments
               </a>
             </span>
         </div>
