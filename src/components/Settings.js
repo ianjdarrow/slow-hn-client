@@ -21,7 +21,8 @@ class Settings extends Component {
         <Header nextUpdate={ this.props.nextUpdate } />
         <div className='settings-container'>
           <p>Slow HN logs the best stories from Hacker News, then displays them in batches that update less frequently.</p>
-          <p>For example, set an interval of <strong>8 hours</strong>, starting at <strong>9 AM</strong>. From 9 AM through 5 PM, Slow HN will display a static set of the best articles from the previous 8-hour period (1 AM to 9 AM). After 5 PM, you'll get a new batch of articles from the 9 AM - 5 PM period.</p>
+          <p>For example, set an interval of <strong>8 hours</strong>, starting at <strong>9 AM</strong>. From 9 AM through 5 PM, Slow HN will display a static set of the most highly-placed articles from the previous 8-hour period (1 AM to 9 AM). After 5 PM, you'll get a new batch of articles from the 9 AM - 5 PM period.</p>
+          <p>The goal is to enjoy HN's content in a more concentrated, less frequent way.</p>
           <div className='settings-row'>
             <div className='settings-interval'>
               <label>Update every</label><br/>
