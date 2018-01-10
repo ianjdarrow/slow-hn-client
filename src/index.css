@@ -37,6 +37,7 @@ button {
 }
 
 button:hover {
-  color: hsl(220,100%,60%);
-  border: 2px solid hsl(220,100%,60%);
+  color: hsl(210,100%,50%);
+  border: 2px solid hsl(210,100%,50%);
+  cursor: pointer;
 }
