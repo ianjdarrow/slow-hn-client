@@ -1,4 +1,5 @@
 import React from 'react';
+import distanceInWordsToNow from 'date-fns/distance_in_words_to_now';
 
 const userURL = (username) => {
   return `https://news.ycombinator.com/user?id=${username}`;
@@ -6,6 +7,12 @@ const userURL = (username) => {
 
 const itemURL = (id) => {
   return `https://news.ycombinator.com/item?id=${id}`;
+}
+
+const formatDate = (epochTime) => {
+  return distanceInWordsToNow(new Date(epochTime*1000), {
+    addSuffix: true
+  }).replace('about ', '');
 }
 
 function PostList(props) {
@@ -21,10 +28,11 @@ function PostList(props) {
         </div>
         <div className='list-item-details'>
           <span>
-            <span className='post-details'>by</span>
+            <span className='post-details'>{ post.score } points by</span>
             <a href={ userURL(post.by) } className='post-details'>
               {post.by}
             </a></span>
+            <span className='post-details'>{ formatDate(post.time) }</span>
             <span className='post-details'> | </span>
             <span>
               <a href={ itemURL(post.id) } className='post-details'>

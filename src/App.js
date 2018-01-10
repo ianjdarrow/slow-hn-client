@@ -1,16 +1,25 @@
 import React, { Component } from 'react';
-import './App.css';
-import Header from './components/Header';
-import PostList from './components/PostList';
+import { BrowserRouter, Route } from 'react-router-dom';
+import axios from 'axios';
 
-import axios from 'axios'
+import './App.css';
+
+import Index from './components/Index';
+
+axios.defaults.timeout = 2000;
 
 class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      posts: null,
+      posts: [],
+      loadError: false,
+      nextUpdate: 0
     }
+
+    this.getPosts = this.getPosts.bind(this);
+    this.getTimeList = this.getTimeList.bind(this);
+    this.toEpochTime = this.toEpochTime.bind(this);
   }
 
   setStateAsync(state) {
@@ -19,18 +28,57 @@ class App extends Component {
     });
   }
 
-  async componentDidMount () {
-    const now = Math.round((new Date()).getTime() / 1000);
-    const res = await axios.get(`http://localhost:4000/posts?start=${now-60*60}&end=${now}`)
-    await this.setStateAsync((state) => ({ posts: res.data }));
+  toEpochTime(date) {
+    return Math.round((date).getTime() / 1000);
   }
+
+  getTimeList(interval, offset) {
+    window.localStorage.slowHnInterval = interval;
+    window.localStorage.slowHnOffset = offset;
+    const now = new Date();
+    const [year, month, day, hour] = [now.getFullYear(), now.getMonth(), now.getDate(), now.getHours()];
+    const nearestDay = this.toEpochTime(new Date(year, month, day, offset));
+    const nearestHour = this.toEpochTime(new Date(year, month, day, hour));
+    const adj = interval * 60 * 60;
+
+    let checkpoints = [];
+    for(let i=0;i<48;i++) {
+      const checkpoint = nearestDay + (i-24)*adj;
+      checkpoints.push(checkpoint);
+      if (checkpoint > nearestHour) {
+        this.getPosts(checkpoints[i-2], checkpoints[i-1]);
+        this.setStateAsync((state) => ({ nextUpdate: checkpoint }));
+        return checkpoint;
+      }
+    }
+  }
+
+  async getPosts(start, end) {
+    const searchString = `http://localhost:4000/posts?start=${start}&end=${end}`;
+    try {
+      const res = await axios.get(searchString);
+      await this.setStateAsync((state) => ({ posts: res.data }));
+    } catch (err) {
+      console.error("Error loading data!");
+      await this.setStateAsync((state) => ({ loadError: true }));
+    }
+  }
+
+  async componentDidMount () {
+    const nextUpdate = this.getTimeList(window.localStorage.slowHnInterval || 24, window.localStorage.slowHnOffset || 8);
+    this.setState((state) => ({ nextUpdate }));
+  }
+
 
   render() {
     return (
-      <div className="app">
-        <Header />
-        { <PostList posts={this.state.posts || [] } /> }
+      <BrowserRouter>
+      <div>
+        <Route path='/' exact render={(routeProps) => (
+          <Index nextUpdate={ this.state.nextUpdate } posts = { this.state.posts } { ...routeProps } /> )} 
+        />
       </div>
+      </BrowserRouter>
     );
   }
 }
