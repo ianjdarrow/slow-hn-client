@@ -5,6 +5,7 @@ import axios from 'axios';
 import './App.css';
 
 import Index from './components/Index';
+import Settings from './components/Settings';
 
 axios.defaults.timeout = 2000;
 
@@ -76,6 +77,9 @@ class App extends Component {
       <div>
         <Route path='/' exact render={(routeProps) => (
           <Index nextUpdate={ this.state.nextUpdate } posts = { this.state.posts } { ...routeProps } /> )} 
+        />
+        <Route path='/settings' exact render={(routeProps) => (
+          <Settings nextUpdate={ this.state.nextUpdate } getTimeList={ this.getTimeList } { ...routeProps } /> )} 
         />
       </div>
       </BrowserRouter>
