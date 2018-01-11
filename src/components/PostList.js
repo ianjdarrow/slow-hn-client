@@ -41,7 +41,7 @@ function PostList(props) {
             </span>
         </div>
       </div>
-    )
+    );
   });
   return (
     <div className='post-list-container'>
