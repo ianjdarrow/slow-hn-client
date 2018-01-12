@@ -8,10 +8,10 @@ class Settings extends Component {
     this.updateTiming = this.updateTiming.bind(this);
   }
 
-  updateTiming() {
+  async updateTiming() {
     const interval = this.refs.interval.value;
     const offset = +this.refs.offset.value + ( this.refs.ampm.value === 'pm' ? 12 : 0);
-    this.props.getTimeList(interval, offset);
+    await this.props.updateTimes(interval, offset);
     this.props.history.push('/');
   }
 

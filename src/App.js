@@ -1,13 +1,16 @@
 import React, { Component } from 'react';
-import { BrowserRouter, Route } from 'react-router-dom';
+import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import axios from 'axios';
 
 import './App.css';
 
 import Index from './components/Index';
 import Settings from './components/Settings';
+import NotFound from './components/NotFound';
 
-axios.defaults.timeout = 2000;
+axios.defaults.timeout = 2500;
+
+const API_URL = `https://api.slow-hn.com`;
 
 class App extends Component {
   constructor(props) {
@@ -19,7 +22,7 @@ class App extends Component {
     }
 
     this.getPosts = this.getPosts.bind(this);
-    this.getTimeList = this.getTimeList.bind(this);
+    this.updateTimes = this.updateTimes.bind(this);
     this.toEpochTime = this.toEpochTime.bind(this);
   }
 
@@ -33,7 +36,7 @@ class App extends Component {
     return Math.round((date).getTime() / 1000);
   }
 
-  getTimeList(interval, offset) {
+  async updateTimes(interval, offset) {
     window.localStorage.slowHnInterval = interval;
     window.localStorage.slowHnOffset = offset;
     const now = new Date();
@@ -47,15 +50,15 @@ class App extends Component {
       const checkpoint = nearestDay + (i-24)*adj;
       checkpoints.push(checkpoint);
       if (checkpoint > nearestHour) {
-        this.getPosts(checkpoints[i-2], checkpoints[i-1]);
         this.setStateAsync((state) => ({ nextUpdate: checkpoint }));
-        return checkpoint;
+        await this.getPosts(checkpoints[i-2], checkpoints[i-1]);
+        return;
       }
     }
   }
 
   async getPosts(start, end) {
-    const searchString = `http://localhost:4000/posts?start=${start}&end=${end}`;
+    const searchString = `${API_URL}/posts?start=${start}&end=${end}`;
     try {
       const res = await axios.get(searchString);
       await this.setStateAsync((state) => ({ posts: res.data }));
@@ -65,23 +68,30 @@ class App extends Component {
     }
   }
 
-  async componentDidMount () {
-    const nextUpdate = this.getTimeList(window.localStorage.slowHnInterval || 24, window.localStorage.slowHnOffset || 8);
-    this.setState((state) => ({ nextUpdate }));
+  async componentWillMount () {
+    this.updateTimes(window.localStorage.slowHnInterval || 24, window.localStorage.slowHnOffset || 8);
   }
 
 
   render() {
     return (
       <BrowserRouter>
-      <div>
+      <Switch>
         <Route path='/' exact render={(routeProps) => (
-          <Index nextUpdate={ this.state.nextUpdate } posts = { this.state.posts } { ...routeProps } /> )} 
+          <Index 
+            nextUpdate={ this.state.nextUpdate } 
+            posts = { this.state.posts } 
+            loadError = { this.state.loadError }
+            { ...routeProps } 
+          /> )} 
         />
         <Route path='/settings' exact render={(routeProps) => (
-          <Settings nextUpdate={ this.state.nextUpdate } getTimeList={ this.getTimeList } { ...routeProps } /> )} 
+          <Settings nextUpdate={ this.state.nextUpdate } updateTimes={ this.updateTimes } { ...routeProps } /> )} 
         />
-      </div>
+        <Route path='*' render={(routeProps) => (
+          <NotFound nextUpdate={ this.state.nextUpdate } { ...routeProps } /> )} 
+        />
+      </Switch>
       </BrowserRouter>
     );
   }

@@ -15,6 +15,13 @@ const formatDate = (epochTime) => {
   }).replace('about ', '');
 }
 
+const getDomainFromURL = (url) => {
+  let a = document.createElement('a');
+  a.setAttribute('href', url);
+  const hostname = a.hostname.replace('www.', '').split('.');
+  return hostname.splice(hostname.length-2, hostname.length).join('.');
+}
+
 function PostList(props) {
   const posts = props.posts;
   const postList = posts.map((post, i) => {
@@ -23,8 +30,11 @@ function PostList(props) {
         <div className='list-item-index'><span>{ i+1 }.</span></div>
         <div className='list-item-title'>
            <span><a href={ post.url } className='post-title'>
-            { post.title }
+            { post.title }&nbsp;
           </a></span>
+          <span className='post-url'>
+            ({ getDomainFromURL(post.url) })
+          </span>
         </div>
         <div className='list-item-details'>
           <span>
