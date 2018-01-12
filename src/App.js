@@ -39,17 +39,22 @@ class App extends Component {
   async updateTimes(interval, offset) {
     window.localStorage.slowHnInterval = interval;
     window.localStorage.slowHnOffset = offset;
+    const anchorDay = window.localStorage.slowHnAnchorDay;
     const now = new Date();
-    const [year, month, day, hour] = [now.getFullYear(), now.getMonth(), now.getDate(), now.getHours()];
-    const nearestDay = this.toEpochTime(new Date(year, month, day, offset));
-    const nearestHour = this.toEpochTime(new Date(year, month, day, hour));
+    const nowEpoch = this.toEpochTime(now);
+    const [year, month, date, day] = [now.getFullYear(), now.getMonth(), now.getDate(), now.getDay()];
+    let nearestDay = this.toEpochTime(new Date(year, month, date, offset));
+    if (interval > 24) {
+      const dayDelta = (day + 6 - anchorDay) % 7;
+      nearestDay -= (dayDelta * 60 * 60 * 24);
+    }
     const adj = interval * 60 * 60;
 
     let checkpoints = [];
-    for(let i=0;i<48;i++) {
-      const checkpoint = nearestDay + (i-24)*adj;
+    for(let i=0;i<12;i++) {
+      const checkpoint = nearestDay + (i-6)*adj;
       checkpoints.push(checkpoint);
-      if (checkpoint > nearestHour) {
+      if (checkpoint > nowEpoch) {
         this.setStateAsync((state) => ({ nextUpdate: checkpoint }));
         await this.getPosts(checkpoints[i-2], checkpoints[i-1]);
         return;
@@ -61,6 +66,7 @@ class App extends Component {
     const searchString = `${API_URL}/posts?start=${start}&end=${end}`;
     try {
       const res = await axios.get(searchString);
+      res.data = res.data || [];
       await this.setStateAsync((state) => ({ posts: res.data }));
     } catch (err) {
       console.error("Error loading data!");
@@ -69,7 +75,7 @@ class App extends Component {
   }
 
   async componentWillMount () {
-    this.updateTimes(window.localStorage.slowHnInterval || 24, window.localStorage.slowHnOffset || 8);
+    await this.updateTimes(window.localStorage.slowHnInterval || 24, window.localStorage.slowHnOffset || 8);
   }
 
 
