@@ -56,6 +56,10 @@
   color: hsl(0,0%,80%);
 }
 
+.interval-time-display.available {
+  color: hsl(0,0%,95%);
+}
+
 .post-list-container {
   max-width: 960px;
   margin: 0 auto;
@@ -90,7 +94,7 @@
 a.post-title {
   color: hsl(0, 0%, 5%);
   text-decoration: none;
-  font-weight: 500;
+  font-weight: 400;
   letter-spacing: 0.25px;
 }
 
@@ -186,7 +190,6 @@ a.post-details:hover {
 .footer-container {
   font-size: 12px;
   box-sizing: border-box;
-  /*border: 2px solid hsl(220,30%,97%);*/
   color: hsl(0, 0%, 75%);
   max-width: 960px;
   margin: 0 auto;

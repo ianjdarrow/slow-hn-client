@@ -4,6 +4,7 @@ import axios from 'axios';
 
 import './App.css';
 
+import Header from './components/Header';
 import Index from './components/Index';
 import Settings from './components/Settings';
 import NotFound from './components/NotFound';
@@ -18,7 +19,7 @@ class App extends Component {
     this.state = {
       posts: [],
       loadError: false,
-      nextUpdate: 0
+      nextUpdate: 0,
     }
 
     this.getPosts = this.getPosts.bind(this);
@@ -36,10 +37,10 @@ class App extends Component {
     return Math.round((date).getTime() / 1000);
   }
 
-  async updateTimes(interval, offset) {
+  async updateTimes(interval, offset, anchorDay) {
     window.localStorage.slowHnInterval = interval;
     window.localStorage.slowHnOffset = offset;
-    const anchorDay = window.localStorage.slowHnAnchorDay;
+    window.localStorage.slowHnAnchorDay = anchorDay;
     const now = new Date();
     const nowEpoch = this.toEpochTime(now);
     const [year, month, date, day] = [now.getFullYear(), now.getMonth(), now.getDate(), now.getDay()];
@@ -75,29 +76,36 @@ class App extends Component {
   }
 
   async componentWillMount () {
-    await this.updateTimes(window.localStorage.slowHnInterval || 24, window.localStorage.slowHnOffset || 8);
+    await this.updateTimes(window.localStorage.slowHnInterval || 24, window.localStorage.slowHnOffset || 8, window.localStorage.slowHnAnchorDay || 0);
   }
 
 
   render() {
     return (
       <BrowserRouter>
-      <Switch>
-        <Route path='/' exact render={(routeProps) => (
-          <Index 
+      <div>
+        <Route path='/' render={(routeProps) => (
+          <Header 
             nextUpdate={ this.state.nextUpdate } 
-            posts = { this.state.posts } 
-            loadError = { this.state.loadError }
-            { ...routeProps } 
-          /> )} 
+            updateTimes={ this.updateTimes }
+            {...routeProps }
+          /> )}
         />
-        <Route path='/settings' exact render={(routeProps) => (
-          <Settings nextUpdate={ this.state.nextUpdate } updateTimes={ this.updateTimes } { ...routeProps } /> )} 
-        />
-        <Route path='*' render={(routeProps) => (
-          <NotFound nextUpdate={ this.state.nextUpdate } { ...routeProps } /> )} 
-        />
-      </Switch>
+        <Switch>
+          <Route path='/' exact render={(routeProps) => (
+            <Index 
+              nextUpdate={ this.state.nextUpdate } 
+              posts = { this.state.posts } 
+              loadError = { this.state.loadError }
+              { ...routeProps } 
+            /> )} 
+          />
+          <Route path='/settings' exact render={(routeProps) => (
+            <Settings updateTimes={ this.updateTimes } { ...routeProps } /> )} 
+          />
+          <Route path='*' component={ NotFound } />
+        </Switch>
+      </div>
       </BrowserRouter>
     );
   }
