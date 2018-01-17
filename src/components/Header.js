@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import distanceInWordsToNow from 'date-fns/distance_in_words_to_now';
 
 import turtle from '../static/turtle_icon.svg';
+import gear from '../static/gear_icon.svg';
 
 class Header extends React.Component {
   constructor(props) {
@@ -16,17 +17,22 @@ class Header extends React.Component {
       updateTime: ''
     }
   }
+
   componentWillMount() {
     this.makeUpdateTimeInWords();
     this.setState((state) => ({
       ticker: setInterval(() => {
         this.makeUpdateTimeInWords();
-      }, 20 * 1000)
+      }, 30 * 1000)
     }));
+  }
+  componentWillReceiveProps() {
+    this.makeUpdateTimeInWords();
   }
   componentWillUnmount() {
     clearInterval(this.state.ticker);
   }
+
   updateTimeOrLink() {
     const now = Math.round(new Date().getTime() / 1000);
     if (now < this.props.nextUpdate) {
@@ -40,23 +46,28 @@ class Header extends React.Component {
     } else {
       return (
         <span className='interval-time-display available' onClick={ this.updatePosts }>
-          new posts available &rarr;
+          &larr; new posts available
         </span>
       );
     }
   }
+
   makeUpdateTimeInWords() {
     const updateTime = distanceInWordsToNow(new Date(this.props.nextUpdate*1000));
-    this.setState((state) => ({
-      updateTime: updateTime
-    }));
+    if (updateTime !== this.state.updateTime) {
+      this.setState((state) => ({
+        updateTime: updateTime
+      }));
+    }
   }
+
   updatePosts() {
     const interval = window.localStorage.slowHnInterval;
     const offset = window.localStorage.slowHnOffset;
     const anchorDay = window.localStorage.slowHnAnchorDay;
     this.props.updateTimes(interval, offset, anchorDay);
   }
+
   render() {
     return (
       <div className='header-wrapper'>
@@ -66,6 +77,9 @@ class Header extends React.Component {
         <Link className='header-title' to='/'>Slow HN</Link>
         <div className='interval-picker-wrapper'>
           { this.updateTimeOrLink() }
+          <Link to='/settings' className='btn'>
+            <img src={ gear } className='header-settings' alt='settings' />
+          </Link>
         </div>
       </div>
     ); 
